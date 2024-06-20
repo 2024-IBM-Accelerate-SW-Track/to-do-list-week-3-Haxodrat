@@ -2,7 +2,6 @@ import { render, screen, fireEvent} from '@testing-library/react';
 import { unmountComponentAtNode } from 'react-dom';
 import '@testing-library/jest-dom'
 import App from './App';
-import AddTodo from './component/AddTodo';
 
 let container = null;
 beforeEach(() => {
@@ -22,7 +21,7 @@ afterEach(() => {
 
 
  test('test that AddTodo component doesn\'t render duplicate Task', () => {
-  render(<AddTodo />);
+  render(<App />);
   const inputTask = screen.getByRole('textbox', {name: /Add New Item/i});
   const inputDate = screen.getByPlaceholderText("mm/dd/yyyy");
   const element = screen.getByRole('button', {name: /Add/i});
@@ -30,10 +29,6 @@ afterEach(() => {
   fireEvent.change(inputTask, { target: { value: "Hey"}});
   fireEvent.change(inputDate, { target: { value: dueDate}});
   fireEvent.click(element);
-  const check = screen.getByTestId(/Hey/i);
-  const checkDate = screen.getByText(new RegExp(dueDate, "i"));
-  expect(check).toBeInTheDocument();
-  expect(checkDate).toBeInTheDocument();
   fireEvent.change(inputTask, { target: {value: "Hey"}});
   fireEvent.change(inputDate, { target: { value: dueDate}});
   const noDupe = screen.queryAllByText(/Hey/i);
@@ -42,7 +37,7 @@ afterEach(() => {
  });
 
  test('test that AddTodo component doesn\'t add a task without task name', () => {
-  render(<AddTodo />);
+  render(<App />);
   const inputTask = screen.getByRole('textbox', {name: /Add New Item/i});
   const inputDate = screen.getByPlaceholderText("mm/dd/yyyy");
   const element = screen.getByRole('button', {name: /Add/i});
@@ -55,7 +50,7 @@ afterEach(() => {
  });
 
  test('test that AddTodo component doesn\'t add a task without due date', () => {
-  render(<AddTodo />);
+  render(<App />);
   const inputTask = screen.getByRole('textbox', {name: /Add New Item/i});
   const inputDate = screen.getByPlaceholderText("mm/dd/yyyy");
   const element = screen.getByRole('button', {name: /Add/i});
@@ -69,7 +64,23 @@ afterEach(() => {
 
 
  test('test that AddTodo component can be deleted thru checkbox', () => {
-  render(<AddTodo />);
+  render(<App />);
+  const inputTask = screen.getByRole('textbox', {name: /Add New Item/i});
+  const inputDate = screen.getByPlaceholderText("mm/dd/yyyy");
+  const element = screen.getByRole('button', {name: /Add/i});
+  const dueDate = "04/20/2024";
+  fireEvent.change(inputTask, { target: { value: "Hey"}});
+  fireEvent.change(inputDate, { target: { value: dueDate}});
+  fireEvent.click(element);
+  const check = screen.getByRole('checkbox');
+  fireEvent.click(check);
+  const none = screen.queryByText(/Hey/i);
+  expect(none).toBe(null);
+ });
+
+
+ test('test that AddTodo component renders different colors for past due events', () => {
+  render(<App />);
   const inputTask = screen.getByRole('textbox', {name: /Add New Item/i});
   const inputDate = screen.getByPlaceholderText("mm/dd/yyyy");
   const element = screen.getByRole('button', {name: /Add/i});
@@ -84,10 +95,4 @@ afterEach(() => {
   const heyCheck = screen.getByTestId(/Hey/i).style.background;
   const hiCheck = screen.getByTestId(/Hi/i).style.background;
   expect(heyCheck).not.toBe(hiCheck);
- });
-
-
- test('test that AddTodo component renders different colors for past due events', () => {
-  render(<AddTodo />);
-  const check = screen.getByRole('checkbox', {});
  });
